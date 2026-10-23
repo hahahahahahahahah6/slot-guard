@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>slot-guard — watch tasks</title>
+<style>
+  body { font:14px/1.6 system-ui,sans-serif; max-width:760px; margin:0 auto; padding:24px; color:#222; }
+  h1 { font-size:22px; } h2 { font-size:16px; margin-top:28px; }
+  .card { border:1px solid #ddd; border-radius:10px; padding:14px; margin:10px 0; }
+  .card .name { font-weight:700; }
+  .badge { display:inline-block; font-size:11px; font-weight:700; border-radius:6px; padding:2px 8px; margin-left:8px; }
+  .st-OK { background:#e6f4ea; color:#137333; } .st-NEEDS_USER { background:#fdecea; color:#a50e0e; }
+  .st-NEEDS_TAB { background:#fef7e0; color:#b06000; } .st-ERROR { background:#fdecea; color:#a50e0e; }
+  .st-NEW { background:#e8f0fe; color:#1967d2; }
+  .meta { color:#666; font-size:12px; margin-top:6px; }
+  label { display:block; margin:8px 0 2px; font-weight:600; }
+  input, select { width:100%; padding:8px; border:1px solid #ccc; border-radius:6px; font-size:14px; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:0 16px; }
+  button { padding:8px 14px; border:1px solid #ccc; border-radius:8px; background:#fff; cursor:pointer; margin:6px 6px 0 0; }
+  button.primary { background:#1a73e8; color:#fff; border-color:#1a73e8; }
+  button.danger { color:#a50e0e; }
+  .hint { color:#666; font-size:12px; }
+  #testResult { margin-top:8px; font-size:13px; }
+  .ok { color:#137333; } .fail { color:#a50e0e; }
+  .tpl { background:#f8f9fa; }
+</style>
+</head>
+<body>
+<h1>slot-guard — watch tasks</h1>
+<p class="hint">Each task watches one page for changes. If a bot check (Cloudflare/CAPTCHA)
+appears, the task <b>pauses itself</b> and asks you to solve it — it never tries to
+bypass checks. Keep the watched tab open (or set an "open URL" below).</p>
+
+<h2>Templates</h2>
+<div class="card tpl">
+  <div class="name">US visa appointment calendar</div>
+  <div class="hint">For usvisascheduling.com — alerts when available dates appear.</div>
+  <button data-tpl="visa">Use this template</button>
+</div>
+<div class="card tpl">
+  <div class="name">Generic text watcher</div>
+  <div class="hint">Watch any element's text; alerts when it changes. Good for
+  "sold out" → "in stock" flips, price changes, new listings.</div>
+  <button data-tpl="generic">Use this template</button>
+</div>
+
+<h2 id="formTitle">New task</h2>
+<form id="taskForm">
+  <input type="hidden" id="f_id">
+  <label>Name <input id="f_name" placeholder="Shenyang visa dates"></label>
+  <div class="grid">
+    <div><label>URL pattern (tab matching) <input id="f_urlPattern" placeholder="https://*.usvisascheduling.com/*"></label></div>
+    <div><label>Open URL (optional, opened if no tab) <input id="f_openUrl" placeholder="https://…/schedule"></label></div>
+  </div>
+  <label>CSS selector <input id="f_selector" placeholder=".calendar-day.available"></label>
+  <div class="grid">
+    <div><label>Mode
+      <select id="f_mode">
+        <option value="text-changed">text-changed — alert when watched text changes</option>
+        <option value="text-present">text-present — alert when target text appears</option>
+        <option value="text-absent">text-absent — alert when target text disappears</option>
+        <option value="count-changed">count-changed — alert when match count changes</option>
+      </select></label></div>
+    <div><label>Check every (minutes) <input id="f_intervalMin" type="number" min="1" max="1440" value="30"></label></div>
+  </div>
+  <div>
+    <button type="button" id="btnTest">Test selector on current tab</button>
+    <span class="hint">Open the target page in this window's active tab first.</span>
+    <div id="testResult"></div>
+  </div>
+  <div style="margin-top:10px">
+    <button type="submit" class="primary" id="btnSave">Save task</button>
+    <button type="button" id="btnCancel">Cancel</button>
+  </div>
+  <div id="formError" class="fail"></div>
+</form>
+
+<h2>Tasks</h2>
+<div id="taskList"></div>
+
+<script src="options.js"></script>
+</body>
+</html>
